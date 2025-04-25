@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: fomvasss
- * Date: 26.10.18
- * Time: 03:21
- */
 
 namespace Fomvasss\LaravelStrTokens;
 
@@ -17,10 +11,10 @@ class StrTokenGenerator
 {
     /** @var \Illuminate\Foundation\Application The Laravel application instance. */
     protected $app;
-    
+
     /** @var mixed The Laravel application configs. */
     protected $config;
-    
+
     /** @var string */
     protected $text = '';
 
@@ -29,7 +23,7 @@ class StrTokenGenerator
 
     /** @var null */
     protected $entity = null;
-    
+
     /** @var array */
     protected $entities = [];
 
@@ -51,7 +45,7 @@ class StrTokenGenerator
 
         $this->config = $this->app['config'];
     }
-    
+
     /**
      * @param string $text
      * @return StrTokenGenerator
@@ -95,9 +89,9 @@ class StrTokenGenerator
         foreach ($entities as $key => $entity) {
             $this->ensureValidEntity($entity);
         }
-        
+
         $this->entities = $entities;
-        
+
         return $this;
     }
 
@@ -123,7 +117,7 @@ class StrTokenGenerator
 
         return $this;
     }
-    
+
     /**
      * @return StrTokenGenerator
      */
@@ -166,14 +160,19 @@ class StrTokenGenerator
             } elseif ($this->entity && strtolower($key) === Str::snake(class_basename($this->entity))) {
                 $replacements += $this->eloquentModelTokens($this->entity, $attributes, $key);
 
-            // For related taxonomy: https://github.com/fomvasss/laravel-taxonomy
+            // For related taxonomy: https://github.com/fomvasss/laravel-simple-taxonomy
             // and you set preffix in your relation methods - "tx"
             } elseif ($this->entity && substr($key, 0, 2) === 'tx') {
                 $replacements += $this->eloquentModelTokens($this->entity, $attributes, $key);
-                
+
             } elseif (in_array($key, array_keys($this->entities))) {
                 $eloquentModel = $this->entities[$key];
                 $replacements += $this->eloquentModelTokens($eloquentModel, $attributes, $key);
+            } elseif ($this->entity && method_exists($this->entity, $strTokenMethod = Str::camel('str_token_'.$key))) {
+                // $delim = $this->config->get('str-tokens.token_split_character', ':');
+                //
+                // dd($this->entity->{$strTokenMethod}($this->entity, $attributes));
+                $replacements += $this->eloquentModelTokens($this->entity, $attributes, $key);
             }
 
             if ($this->clearEmptyTokens) {
