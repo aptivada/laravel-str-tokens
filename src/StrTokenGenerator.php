@@ -194,7 +194,7 @@ class StrTokenGenerator
      * @param $text
      * @return array
      */
-    private function tokenScan(string $text): array
+    public function tokenScan(string $text): array
     {
 
         // Matches tokens with the following pattern: [$type:$name]
